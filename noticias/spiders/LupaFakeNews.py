@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
 import scrapy
 
-chamadaDaMateria = []
 class LupaFakeNewsSpider(scrapy.Spider):
     name = 'LupaFakeNews'
     start_urls = ['https://piaui.folha.uol.com.br/lupa/']
 
     def parse(self, response):
         for article in response.css("div.bloco div.inner"):
-            global chamadaDaMateria
             link = article.css("h2.bloco-title a::attr(href)").extract_first()
             chamada = article.css("h3.bloco-chamada a::text").extract_first()
-            chamadaDaMateria.append(chamada)
             request = scrapy.Request(url = link, callback = self.parse_pagina_secundaria)
             request.meta['chamada'] = chamada
             yield request
@@ -22,7 +19,6 @@ class LupaFakeNewsSpider(scrapy.Spider):
             yield scrapy.Request(url = proximaPagina, callback=self.parse, dont_filter=True)
     
     def parse_pagina_secundaria(self, response):
-        global chamadaDaMateria
         link = response.url
         titulo = response.css("h2.bloco-title::text").extract_first()
         verificaSeEhFatoOuFake = response.css("div.etiqueta::text").extract_first()
