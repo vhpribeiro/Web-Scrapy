@@ -15,21 +15,40 @@ class FatoOuFakeTodasAsPaginasSpider(scrapy.Spider):
             if "#FAKE" in itens['content']['title'] or "#FATO" in itens['content']['title']:
                 if "#FATO ou #FAKE" not in itens['content']['title']:
                     if  "Veja o que" not in itens['content']['title']:
+                        link = itens['content']['url']
+                        titulo = itens['content']['title']
+                        chamadaDaMateria = itens['content']['summary']
                         if "#FAKE" in itens['content']['title']:
-                            yield{
-                                'fatoOuFake': 0,
-                                'titulo': itens['content']['title'],
-                                'link': itens['content']['url'],
-                                'chamadaDaMateria': itens['content']['summary']
-                            }
+                            fatoOuFake = 0
+                            request = scrapy.Request(url = link, callback = self.parse_da_noticia)
+                            request.meta['titulo'] = titulo,
+                            request.meta['chamadaDaMateria'] = chamadaDaMateria
+                            request.meta['fatoOuFake'] = fatoOuFake
+                            yield request
+
                         if "#FATO" in itens['content']['title']:
-                            yield{
-                                'fatoOuFake': 1,
-                                'titulo': itens['content']['title'],
-                                'link': itens['content']['url'],
-                                'chamadaDaMateria': itens['content']['summary']
-                            }
+                            fatoOuFake = 1
+                            request = scrapy.Request(url = link, callback = self.parse_da_noticia)
+                            request.meta['titulo'] = titulo,
+                            request.meta['chamadaDaMateria'] = chamadaDaMateria
+                            request.meta['fatoOuFake'] = fatoOuFake
+                            yield request
+
             mesDaUltimaPublicacaoDoLaco = itens['created'][5:7]
         proximaPagina = data['nextPage']
         if mesDaUltimaPublicacaoDoLaco >= 5:
             yield scrapy.Request(url = self.urlDaPagina.format(proximaPagina), callback = self.parse)
+    
+    def parse_da_noticia(self, response):
+        link = response.url
+        materiaCompleta = ""
+        for article in response.css('p.content-text__container'):
+            materiaCompleta = materiaCompleta + str(article.css('p.content-text__container').extract_first().encode("utf-8"))
+        
+        yield{
+            'fatoOuFake': response.meta['fatoOuFake'],
+            'titulo': response.meta['titulo'],
+            'link': link,
+            'chamadaDaMateria': response.meta['chamadaDaMateria'],
+            'materiaCompleta': materiaCompleta
+        }
