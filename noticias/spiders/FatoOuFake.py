@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#encoding: utf-8
 import scrapy
 from noticias.items import NoticiasItem
 
@@ -16,10 +16,9 @@ class FatoOuFakeSpider(scrapy.Spider):
                 if "#FATO ou #FAKE" not in titulo:
                     if  "Veja o que" not in titulo:
                         if "#FAKE" in titulo:
-                           if "#FAKE" in titulo:
                             fatoOuFake = 0
                             request = scrapy.Request(url = link, callback = self.parse_da_noticia)
-                            request.meta['titulo'] = titulo
+                            request.meta['titulo'] = titulo.encode("utf-8")
                             request.meta['chamadaDaMateria'] = chamadaDaMateria
                             request.meta['fatoOuFake'] = fatoOuFake
 

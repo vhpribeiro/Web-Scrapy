@@ -14,9 +14,7 @@ class LupaFakeNewsSpider(scrapy.Spider):
             yield request
 
         proximaPagina = response.css("a.btnvermais::attr(href)").extract_first()
-        paginaAtual = proximaPagina[len(proximaPagina) - 2]
-        if int(paginaAtual) <= 20:
-            yield scrapy.Request(url = proximaPagina, callback=self.parse, dont_filter=True)
+        yield scrapy.Request(url = proximaPagina, callback=self.parse, dont_filter=True)
     
     def parse_da_noticia(self, response):
         link = response.url
@@ -32,8 +30,8 @@ class LupaFakeNewsSpider(scrapy.Spider):
                     'link': link,
                     'chamadaDaMateria': response.meta['chamada'],
                     'materiaCompleta': materiaCompleta
+                    
                 }
-
         if "V" in verificaSeEhFatoOuFake:
             fatoOuFake = 1
             if "#Verificamos:" in titulo:

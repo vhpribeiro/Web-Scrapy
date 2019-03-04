@@ -1,4 +1,4 @@
-# encoding: utf-8
+# -*- coding: utf-8 -*-
 import scrapy
 import json
 from noticias.items import NoticiasItem
@@ -16,29 +16,30 @@ class FatoOuFakeTodasAsPaginasSpider(scrapy.Spider):
                 if "#FATO ou #FAKE" not in itens['content']['title']:
                     if  "Veja o que" not in itens['content']['title']:
                         link = itens['content']['url']
-                        titulo = itens['content']['title']
+                        titulo = itens['content']['title'].encode('utf8')
                         chamadaDaMateria = itens['content']['summary']
                         if "#FAKE" in itens['content']['title']:
                             fatoOuFake = 0
-                            request = scrapy.Request(url = link, callback = self.parse_da_noticia)
-                            request.meta['titulo'] = titulo,
-                            request.meta['chamadaDaMateria'] = chamadaDaMateria
-                            request.meta['fatoOuFake'] = fatoOuFake
-                            yield request
+                            requisicao = scrapy.Request(url = link, callback = self.parse_da_noticia)
+                            requisicao.meta['titulo'] = titulo,
+                            requisicao.meta['chamadaDaMateria'] = chamadaDaMateria
+                            requisicao.meta['fatoOuFake'] = fatoOuFake
 
                         if "#FATO" in itens['content']['title']:
                             fatoOuFake = 1
-                            request = scrapy.Request(url = link, callback = self.parse_da_noticia)
-                            request.meta['titulo'] = titulo,
-                            request.meta['chamadaDaMateria'] = chamadaDaMateria
-                            request.meta['fatoOuFake'] = fatoOuFake
-                            yield request
+                            requisicao = scrapy.Request(url = link, callback = self.parse_da_noticia)
+                            requisicao.meta['titulo'] = titulo,
+                            requisicao.meta['chamadaDaMateria'] = chamadaDaMateria
+                            requisicao.meta['fatoOuFake'] = fatoOuFake
+
+                    yield requisicao
 
             mesDaUltimaPublicacaoDoLaco = itens['created'][5:7]
+            anoDaUltimaPublicacaoDoLaco = itens['created'][0:4]
         proximaPagina = data['nextPage']
-        if mesDaUltimaPublicacaoDoLaco >= 5:
+        if mesDaUltimaPublicacaoDoLaco != 2017:
             yield scrapy.Request(url = self.urlDaPagina.format(proximaPagina), callback = self.parse)
-    
+        
     def parse_da_noticia(self, response):
         link = response.url
         materiaCompleta = ""
