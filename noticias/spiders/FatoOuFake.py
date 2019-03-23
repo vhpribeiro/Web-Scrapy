@@ -8,9 +8,9 @@ class FatoOuFakeSpider(scrapy.Spider):
 
     def parse(self, response):
         for article in response.css("div.feed-post-body"):
-            link = article.css("div.feed-post-body-title div div a::attr(href)").extract_first()
-            titulo = article.css("div.feed-post-body-title div div a::text").extract_first()
-            chamadaDaMateria = article.css("div.feed-post-body-resumo div::text").extract_first()
+            link = article.css("div.feed-post-body-title div div a::attr(href)").get()
+            titulo = article.css("div.feed-post-body-title div div a::text").get()
+            chamadaDaMateria = article.css("div.feed-post-body-resumo div::text").get()
 
             if "#FAKE" in titulo or "#FATO" in titulo:
                 if "#FATO ou #FAKE" not in titulo:
@@ -35,7 +35,7 @@ class FatoOuFakeSpider(scrapy.Spider):
         link = response.url
         materiaCompleta = ""
         for article in response.css('p.content-text__container'):
-            materiaCompleta = materiaCompleta + str(article.css('p.content-text__container').extract_first().encode("utf-8"))
+            materiaCompleta = materiaCompleta + str(article.css('p.content-text__container').get().encode("utf-8"))
         
         yield{
             'fatoOuFake': response.meta['fatoOuFake'],

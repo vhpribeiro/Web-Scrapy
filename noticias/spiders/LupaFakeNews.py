@@ -7,20 +7,20 @@ class LupaFakeNewsSpider(scrapy.Spider):
 
     def parse(self, response):
         for article in response.css("div.bloco div.inner"):
-            link = article.css("h2.bloco-title a::attr(href)").extract_first()
-            chamada = article.css("h3.bloco-chamada a::text").extract_first()
+            link = article.css("h2.bloco-title a::attr(href)").get()
+            chamada = article.css("h3.bloco-chamada a::text").get()
             request = scrapy.Request(url = link, callback = self.parse_da_noticia)
             request.meta['chamada'] = chamada
             yield request
 
-        proximaPagina = response.css("a.btnvermais::attr(href)").extract_first()
+        proximaPagina = response.css("a.btnvermais::attr(href)").get()
         yield scrapy.Request(url = proximaPagina, callback=self.parse, dont_filter=True)
     
     def parse_da_noticia(self, response):
         link = response.url
-        titulo = response.css("h2.bloco-title::text").extract_first()
-        materiaCompleta = response.css("div.post-inner").extract_first()
-        verificaSeEhFatoOuFake = response.css("div.etiqueta::text").extract_first()
+        titulo = response.css("h2.bloco-title::text").get()
+        materiaCompleta = response.css("div.post-inner").get()
+        verificaSeEhFatoOuFake = response.css("div.etiqueta::text").get()
         if "F" in verificaSeEhFatoOuFake:
             fatoOuFake = 0
             if "#Verificamos:" in titulo:

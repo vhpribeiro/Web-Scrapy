@@ -44,7 +44,7 @@ class FatoOuFakeTodasAsPaginasSpider(scrapy.Spider):
         link = response.url
         materiaCompleta = ""
         for article in response.css('p.content-text__container'):
-            materiaCompleta = materiaCompleta + str(article.css('p.content-text__container').extract_first().encode("utf-8"))
+            materiaCompleta = materiaCompleta + str(article.css('p.content-text__container').get().encode("utf-8"))
         
         yield{
             'fatoOuFake': response.meta['fatoOuFake'],
